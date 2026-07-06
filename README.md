@@ -149,22 +149,23 @@ Do not start by scraping real buyer portals. Use a layered approach:
 - [x] `scripts/dump_observation.py` CLI
 - [x] Tests against fake buyer portal pages
 
-### Phase 1.75 — LLM connectivity (current)
+### Phase 1.75 — LLM connectivity ✓
 
 **Goal:** Verify Mac → Linux Ollama path before Phase 2 agent loop.
 
 - [x] `OllamaClient` + `BrowserAction` schema
 - [x] `scripts/test_ollama.py` smoke + structured JSON test
-- [ ] Phase 2 constrained action loop wired to Playwright
+- [x] Default inference: `http://192.168.0.7:11434` / `qwen2.5:14b`
 
-### Phase 2 — Constrained Browser Agent
+### Phase 2 — Constrained Browser Agent (current)
 
 **Goal:** LLM chooses from a typed action menu. Playwright executes.
 
-- [ ] Action schema: `click`, `type`, `extract_table`, `download`, `finish`, `fail`
+- [x] Action schema: `click`, `type`, `extract_table`, `finish`, `fail`
 - [x] Observation layer: URL + visible text + interactive element map
-- [ ] ReAct loop (raw `while` or Smolagents)
-- [ ] Eval runner scoring extraction accuracy
+- [x] ReAct loop (`observe → LLM → act → repeat`)
+- [x] `scripts/run_agent.py` CLI with step trace
+- [ ] Eval runner scoring extraction accuracy across portal variants
 
 ### Phase 3 — Semantic Normalization
 
@@ -218,9 +219,11 @@ scruffy/
 ├── portals/v1/          # Fake Coupa-style buyer portal
 ├── scripts/             # Runnable demos
 ├── src/scruffy/
-│   ├── browser/         # Playwright runner, extractors, scraper
-│   └── models/          # Pydantic schemas (RawPO, CanonicalPO)
-└── tests/               # pytest + playwright tests
+│   ├── agent/           # ReAct loop, action executor
+│   ├── browser/         # Playwright runner, observation, scraper
+│   ├── llm/             # Ollama client, prompts, BrowserAction
+│   └── models/          # Pydantic schemas (PO, observation)
+└── tests/               # pytest + playwright + ollama tests
 ```
 
 ---
@@ -248,34 +251,48 @@ python scripts/dump_observation.py --page po --po PO-1042 --headed
 python scripts/test_ollama.py
 # or: SCRUFFY_OLLAMA_URL=http://192.168.0.7:11434 python scripts/test_ollama.py
 
+# Run constrained browser agent (portal + Ollama required)
+python scripts/run_agent.py --headed
+
 # Run practice site scraper
 python scripts/scrape_practice_site.py
 
 # Run tests
 pytest -m browser
+pytest -m ollama          # needs Linux box online
+pytest -m slow            # full agent loop E2E (portal + Ollama)
 ```
 
 ---
 
-## Phase 1.5 — Current Focus
+## Phase 2 — Current Focus
 
-Compress each portal page into a typed `PageObservation` that a future agent loop can reason over:
+Scruffy now runs a **constrained ReAct loop**:
 
-```json
-{
-  "url": "http://127.0.0.1:8000/orders",
-  "title": "Purchase Orders — Midwest Foods Vendor Portal",
-  "visible_text": "...",
-  "interactive_elements": [
-    { "id": "e1", "role": "link", "text": "PO-1042", "test_id": "po-link-PO-1042" }
-  ],
-  "tables": [
-    { "id": "orders-table", "headers": ["PO Number", "Order Date", ...], "row_count": 3 }
-  ]
-}
+```text
+observe page → ask Qwen for BrowserAction → Playwright executes → repeat → finish
 ```
 
-No LLM yet — just the eyes. Phase 2 adds the brain.
+```bash
+# terminal 1
+python portals/v1/server.py
+
+# terminal 2
+python scripts/run_agent.py --headed
+```
+
+Default goal: log in → open PO-1042 → extract line items.
+
+**Inference defaults**
+
+| Setting | Value |
+|---------|-------|
+| `SCRUFFY_OLLAMA_URL` | `http://192.168.0.7:11434` |
+| `SCRUFFY_OLLAMA_MODEL` | `qwen2.5:14b` |
+
+**Allowed actions:** `click`, `type`, `extract_table`, `finish`, `fail`
+
+The agent trace prints each step (URL, action, reason, outcome) so you can judge whether Qwen is good enough before moving to portal v2 and evals.
 
 ---
 

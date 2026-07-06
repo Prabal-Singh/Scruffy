@@ -19,6 +19,7 @@ def pytest_configure(config: pytest.Config) -> None:
     config.addinivalue_line("markers", "browser: tests that launch a real browser (need network)")
     config.addinivalue_line("markers", "portal: tests that need the fake buyer portal server")
     config.addinivalue_line("markers", "ollama: tests that need the Linux Ollama inference server")
+    config.addinivalue_line("markers", "slow: tests that call a real LLM agent loop")
 
 
 def _free_port() -> int:
