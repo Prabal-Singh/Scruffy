@@ -129,25 +129,32 @@ Do not start by scraping real buyer portals. Use a layered approach:
 
 ## Phased Roadmap
 
-### Phase 1 — Headless Browser Agents (current)
+### Phase 1 — Headless Browser Agents ✓
 
 **Goal:** Deterministic Playwright harness. No LLM yet.
 
 - [x] Project scaffold
 - [x] Playwright on public practice site (login, table scrape, screenshot, trace)
 - [x] Pydantic models for `RawPurchaseOrder`
-- [ ] Browser observation format (compact DOM → element map)
+- [x] Browser observation format (compact DOM → element map)
 - [x] Fake buyer portal v1 (`portals/v1`)
 - [x] Golden JSON tests against fixtures
 
-**Milestone:** Given portal URL + credentials, log in, navigate to orders, extract PO data, save structured trace.
+### Phase 1.5 — Observation Layer (current)
+
+**Goal:** Compress pages into typed snapshots for future agent loops.
+
+- [x] `PageObservation` schema (`url`, `title`, `visible_text`, `interactive_elements`, `tables`)
+- [x] `capture_page_observation()` via Playwright
+- [x] `scripts/dump_observation.py` CLI
+- [x] Tests against fake buyer portal pages
 
 ### Phase 2 — Constrained Browser Agent
 
 **Goal:** LLM chooses from a typed action menu. Playwright executes.
 
 - [ ] Action schema: `click`, `type`, `extract_table`, `download`, `finish`, `fail`
-- [ ] Observation layer: URL + visible text + interactive element map
+- [x] Observation layer: URL + visible text + interactive element map
 - [ ] ReAct loop (raw `while` or Smolagents)
 - [ ] Eval runner scoring extraction accuracy
 
@@ -225,6 +232,10 @@ python portals/v1/server.py
 # Scrape a PO (terminal 2)
 python scripts/scrape_buyer_portal.py --headed
 
+# Dump page observation JSON (portal must be running)
+python scripts/dump_observation.py --page orders
+python scripts/dump_observation.py --page po --po PO-1042 --headed
+
 # Run practice site scraper
 python scripts/scrape_practice_site.py
 
@@ -234,16 +245,25 @@ pytest -m browser
 
 ---
 
-## Phase 1 — Current Focus
+## Phase 1.5 — Current Focus
 
-We are building the **deterministic browser harness** first:
+Compress each portal page into a typed `PageObservation` that a future agent loop can reason over:
 
-1. **Playwright runner** — launch browser, login, navigate, screenshot, trace
-2. **Table extractor** — pull structured data from HTML tables
-3. **Practice site test** — saucedemo.com as driver's ed
-4. **Pydantic models** — `RawPurchaseOrder` schema ready for fake portal data
+```json
+{
+  "url": "http://127.0.0.1:8000/orders",
+  "title": "Purchase Orders — Midwest Foods Vendor Portal",
+  "visible_text": "...",
+  "interactive_elements": [
+    { "id": "e1", "role": "link", "text": "PO-1042", "test_id": "po-link-PO-1042" }
+  ],
+  "tables": [
+    { "id": "orders-table", "headers": ["PO Number", "Order Date", ...], "row_count": 3 }
+  ]
+}
+```
 
-The LLM agent loop comes in Phase 2. Right now: make the browser reliable.
+No LLM yet — just the eyes. Phase 2 adds the brain.
 
 ---
 
