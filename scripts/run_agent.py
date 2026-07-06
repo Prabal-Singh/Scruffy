@@ -24,9 +24,10 @@ from scruffy.llm.client import OllamaError
 
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_URL = "http://127.0.0.1:8000"
+DEFAULT_PO = "PO-1042"
 DEFAULT_GOAL = (
     f"Log into the buyer portal using email {DEFAULT_EMAIL} and password {DEFAULT_PASSWORD}. "
-    "Open purchase order PO-1042 and finish when the PO line items are visible."
+    f"Open purchase order {DEFAULT_PO} and finish when the PO line items are visible."
 )
 
 
@@ -34,6 +35,11 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Run Scruffy constrained browser agent")
     parser.add_argument("--url", default=DEFAULT_URL, help="Portal base URL")
     parser.add_argument("--goal", default=DEFAULT_GOAL, help="Agent goal")
+    parser.add_argument(
+        "--po",
+        default=DEFAULT_PO,
+        help="Target order id for shell guards and navigation hints (any string)",
+    )
     parser.add_argument("--max-steps", type=int, default=12, help="Max ReAct iterations")
     parser.add_argument("--headed", action="store_true", help="Run browser headed")
     args = parser.parse_args()
@@ -42,6 +48,7 @@ def main() -> int:
         result = run_agent(
             args.url,
             args.goal,
+            target_order_id=args.po,
             max_steps=args.max_steps,
             headless=not args.headed,
             screenshot_dir=ROOT / "screenshots",

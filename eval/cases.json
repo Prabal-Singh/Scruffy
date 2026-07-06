@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "defaults": {
+    "max_steps": 12,
+    "headless": true,
+    "email": "vendor@scruffy.test",
+    "password": "scruffy123"
+  },
+  "cases": [
+    {
+      "id": "v1_po_1042",
+      "portal": "v1",
+      "po_number": "PO-1042",
+      "expected_fixture": "tests/fixtures/expected_po_1042.json",
+      "tags": ["smoke", "portal"]
+    },
+    {
+      "id": "v2_po_1042",
+      "portal": "v2",
+      "po_number": "PO-1042",
+      "expected_fixture": "tests/fixtures/expected_po_1042_v2.json",
+      "tags": ["smoke", "portal"]
+    },
+    {
+      "id": "v3_po_1042",
+      "portal": "v3",
+      "po_number": "PO-1042",
+      "expected_fixture": "tests/fixtures/expected_po_1042_v3.json",
+      "max_steps": 18,
+      "tags": ["smoke", "portal", "pagination"]
+    }
+  ]
+}

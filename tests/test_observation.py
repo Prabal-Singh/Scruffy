@@ -58,6 +58,21 @@ def test_observation_po_detail_page(buyer_portal_url: str, browser_runner) -> No
 
 @pytest.mark.browser
 @pytest.mark.portal
+def test_observation_v3_includes_pagination(buyer_portal_v3_url: str, browser_runner) -> None:
+    with browser_runner.session() as (_pw, _browser, _context, page):
+        login_to_buyer_portal(page, buyer_portal_v3_url)
+        obs = capture_page_observation(page)
+
+    assert obs.pagination is not None
+    assert obs.pagination.page == 1
+    assert obs.pagination.total_pages == 3
+    assert obs.pagination.has_next is True
+    assert obs.visible_po_numbers == ["PO-1045", "PO-1044"]
+    assert "PO-1042" not in obs.visible_po_numbers
+
+
+@pytest.mark.browser
+@pytest.mark.portal
 def test_observation_serializes_to_json(buyer_portal_url: str, browser_runner) -> None:
     with browser_runner.session() as (_pw, _browser, _context, page):
         login_to_buyer_portal(page, buyer_portal_url)

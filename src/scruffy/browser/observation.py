@@ -1,10 +1,11 @@
 from __future__ import annotations
 
-from typing import Any, List
+import re
+from typing import Any, List, Optional
 
 from playwright.sync_api import Page
 
-from scruffy.models.observation import InteractiveElement, PageObservation, TableSummary
+from scruffy.models.observation import InteractiveElement, PageObservation, PaginationState, TableSummary
 
 _INTERACTIVE_JS = """
 () => {
@@ -54,12 +55,49 @@ _INTERACTIVE_JS = """
       test_id: el.getAttribute("data-testid"),
       name: el.getAttribute("name"),
       input_type: tag === "input" ? (el.type || "text") : null,
+      enabled: !(el.disabled || el.getAttribute("aria-disabled") === "true"),
     });
   }
 
   return elements;
 }
 """
+
+
+def _visible_po_numbers(page: Page) -> list[str]:
+    numbers: list[str] = []
+    links = page.locator("[data-testid^='po-link-']")
+    for index in range(links.count()):
+        test_id = links.nth(index).get_attribute("data-testid")
+        if test_id:
+            numbers.append(test_id.removeprefix("po-link-"))
+    return numbers
+
+
+def _pagination_state(page: Page) -> Optional[PaginationState]:
+    info = page.locator("[data-testid='orders-page-info']")
+    if info.count() == 0:
+        return None
+
+    label = info.first.inner_text().strip()
+    match = re.search(r"Page\s+(\d+)\s+of\s+(\d+)", label, re.IGNORECASE)
+    if not match:
+        return None
+
+    page_number = int(match.group(1))
+    total_pages = int(match.group(2))
+    next_button = page.locator("[data-testid='orders-next']")
+    prev_button = page.locator("[data-testid='orders-prev']")
+    has_next = next_button.count() > 0 and next_button.first.is_enabled()
+    has_prev = prev_button.count() > 0 and prev_button.first.is_enabled()
+
+    return PaginationState(
+        page=page_number,
+        total_pages=total_pages,
+        has_next=has_next,
+        has_prev=has_prev,
+        label=label,
+    )
 
 
 def _summarize_tables(page: Page) -> List[TableSummary]:
@@ -98,4 +136,6 @@ def capture_page_observation(page: Page, *, max_text_length: int = 4000) -> Page
         visible_text=visible_text,
         interactive_elements=interactive_elements,
         tables=_summarize_tables(page),
+        visible_po_numbers=_visible_po_numbers(page),
+        pagination=_pagination_state(page),
     )

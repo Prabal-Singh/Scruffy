@@ -75,3 +75,24 @@ python scripts/scrape_buyer_portal.py --url http://127.0.0.1:8001 --headed --po 
 | UOM | Unit |
 | Unit Price | Unit Cost |
 | Line Total | Ext. Amount |
+
+## v3 — National Grocers Alliance (NGA)
+
+Same clean headers and `data-testid`s as v1, but the **orders list is paginated** (2 POs per page). PO-1042 is on page 2 — agents must click **Next** before opening it.
+
+### Start the portal
+
+```bash
+pip install -e ".[portal]"
+python portals/v3/server.py
+# → http://127.0.0.1:8002
+```
+
+### Scrape a PO
+
+```bash
+python scripts/scrape_buyer_portal.py --url http://127.0.0.1:8002
+python scripts/scrape_buyer_portal.py --url http://127.0.0.1:8002 --headed --po PO-1042
+```
+
+Pagination controls use `data-testid="orders-next"`, `orders-prev`, and `orders-page-info`.

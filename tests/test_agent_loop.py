@@ -30,7 +30,7 @@ def test_agent_extracts_po_1042(buyer_portal_url: str) -> None:
         f"Log into the buyer portal using email {DEFAULT_EMAIL} and password {DEFAULT_PASSWORD}. "
         "Open purchase order PO-1042 and finish when the PO line items are visible."
     )
-    result = run_agent(buyer_portal_url, goal, max_steps=12, headless=True)
+    result = run_agent(buyer_portal_url, goal, target_order_id="PO-1042", max_steps=12, headless=True)
 
     assert result.success, result.failure_reason
     assert result.po is not None

@@ -16,3 +16,4 @@ playwright-report/
 .ruff_cache/
 .DS_Store
 screenshots/
+eval-results/

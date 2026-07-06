@@ -14,6 +14,17 @@ class InteractiveElement(BaseModel):
     test_id: Optional[str] = None
     name: Optional[str] = None
     input_type: Optional[str] = None
+    enabled: bool = True
+
+
+class PaginationState(BaseModel):
+    """Pagination metadata when the orders list spans multiple pages."""
+
+    page: int
+    total_pages: int
+    has_next: bool
+    has_prev: bool
+    label: str
 
 
 class TableSummary(BaseModel):
@@ -32,6 +43,8 @@ class PageObservation(BaseModel):
     visible_text: str
     interactive_elements: List[InteractiveElement] = Field(default_factory=list)
     tables: List[TableSummary] = Field(default_factory=list)
+    visible_po_numbers: List[str] = Field(default_factory=list)
+    pagination: Optional[PaginationState] = None
 
     def element_by_id(self, element_id: str) -> Optional[InteractiveElement]:
         for element in self.interactive_elements:

@@ -50,6 +50,25 @@ def test_executor_types_login_fields(buyer_portal_url: str, browser_runner) -> N
 
 @pytest.mark.browser
 @pytest.mark.portal
+def test_executor_rejects_wrong_po_click(buyer_portal_v3_url: str, browser_runner) -> None:
+    from scruffy.agent.executor import WrongPoClickError
+
+    with browser_runner.session() as (_pw, _browser, _context, page):
+        login_to_buyer_portal(page, buyer_portal_v3_url)
+        obs = capture_page_observation(page)
+        wrong_po = next(e for e in obs.interactive_elements if e.test_id == "po-link-PO-1044")
+
+        with pytest.raises(WrongPoClickError):
+            execute_action(
+                page,
+                obs,
+                BrowserAction(action="click", target_id=wrong_po.id, reason="open po"),
+                target_order_id="PO-1042",
+            )
+
+
+@pytest.mark.browser
+@pytest.mark.portal
 def test_resolve_locator_unknown_id_raises(buyer_portal_url: str, browser_runner) -> None:
     with browser_runner.session() as (_pw, _browser, _context, page):
         page.goto(f"{buyer_portal_url}/login")

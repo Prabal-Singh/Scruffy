@@ -8,6 +8,29 @@ from playwright.sync_api import Page
 from scruffy.models.po import RawPOLine, RawPurchaseOrder
 
 
+class BuyerPortalNavigationError(RuntimeError):
+    pass
+
+
+def open_po_from_orders(page: Page, po_number: str, *, max_pages: int = 10) -> None:
+    """Open a PO from the orders list, paginating when needed."""
+    link = page.locator(f"[data-testid='po-link-{po_number}']")
+
+    for _ in range(max_pages):
+        if link.count() > 0:
+            link.first.click()
+            page.wait_for_url(f"**/orders/{po_number}")
+            return
+
+        next_button = page.locator("[data-testid='orders-next']")
+        if next_button.count() == 0 or next_button.is_disabled():
+            break
+        next_button.click()
+        page.wait_for_url("**/orders**")
+
+    raise BuyerPortalNavigationError(f"PO {po_number} not found in orders list")
+
+
 def _parse_date(value: str) -> Optional[date]:
     value = value.strip()
     if not value:

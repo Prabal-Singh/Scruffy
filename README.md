@@ -165,7 +165,7 @@ Do not start by scraping real buyer portals. Use a layered approach:
 - [x] Observation layer: URL + visible text + interactive element map
 - [x] ReAct loop (`observe → LLM → act → repeat`)
 - [x] `scripts/run_agent.py` CLI with step trace
-- [ ] Eval runner scoring extraction accuracy across portal variants
+- [x] Eval runner scoring extraction accuracy across portal variants
 
 ### Phase 3 — Semantic Normalization
 
@@ -216,11 +216,14 @@ Do not start by scraping real buyer portals. Use a layered approach:
 scruffy/
 ├── assets/              # Logo, screenshots
 ├── docs/                # Research notes (portal-research.md)
+├── eval/                # Agent eval case registry (cases.json)
 ├── portals/v1/          # Fake Coupa-style buyer portal (clean headers)
 ├── portals/v2/          # Messy column headers + UOM variants
+├── portals/v3/          # Paginated orders list (PO-1042 on page 2)
 ├── scripts/             # Runnable demos
 ├── src/scruffy/
 │   ├── agent/           # ReAct loop, action executor
+│   ├── eval/            # Case registry, scorer, runner, reports
 │   ├── browser/         # Playwright runner, observation, scraper
 │   ├── llm/             # Ollama client, prompts, BrowserAction
 │   └── models/          # Pydantic schemas (PO, observation)
@@ -241,10 +244,12 @@ playwright install chromium
 # Start fake buyer portal (terminal 1) — v1 on :8000, v2 on :8001
 python portals/v1/server.py
 python portals/v2/server.py
+python portals/v3/server.py
 
 # Scrape a PO (terminal 2)
 python scripts/scrape_buyer_portal.py --headed
 python scripts/scrape_buyer_portal.py --url http://127.0.0.1:8001 --headed
+python scripts/scrape_buyer_portal.py --url http://127.0.0.1:8002 --headed
 
 # Dump page observation JSON (portal must be running)
 python scripts/dump_observation.py --page orders
@@ -257,11 +262,17 @@ python scripts/test_ollama.py
 # Run constrained browser agent (portal + Ollama required)
 python scripts/run_agent.py --headed
 
+# Run agent eval suite (manages portals; needs Ollama)
+python scripts/run_eval.py --list
+python scripts/run_eval.py --tag smoke
+python scripts/run_eval.py --case v2_po_1042
+
 # Run practice site scraper
 python scripts/scrape_practice_site.py
 
 # Run tests
 pytest -m browser
+pytest -m eval             # eval infra unit tests
 pytest -m ollama          # needs Linux box online
 pytest -m slow            # full agent loop E2E (portal + Ollama)
 ```
@@ -295,7 +306,19 @@ Default goal: log in → open PO-1042 → extract line items.
 
 **Allowed actions:** `click`, `type`, `extract_table`, `finish`, `fail`
 
-The agent trace prints each step (URL, action, reason, outcome) so you can judge whether Qwen is good enough before moving to portal v2 and evals.
+### Eval runner
+
+Case registry lives in `eval/cases.json`. Each case defines portal variant, target PO, golden fixture, and tags. `EvalRunner` manages portal lifecycle, runs the agent, scores extraction accuracy, and writes timestamped JSON to `eval-results/`.
+
+Reports include per-case metrics: step count, total duration, LLM duration, agent success, extraction pass/fail, and field-level PO mismatches.
+
+```bash
+python scripts/run_eval.py --tag smoke
+# → eval-results/<run_id>/report.json
+# → eval-results/<run_id>/summary.json
+```
+
+The agent trace prints each step (URL, action, reason, outcome) so you can judge whether Qwen is good enough before scaling evals across more portal variants.
 
 ---
 

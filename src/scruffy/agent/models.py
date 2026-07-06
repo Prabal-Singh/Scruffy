@@ -16,6 +16,8 @@ class AgentStep(BaseModel):
     action: BrowserAction
     success: bool
     message: Optional[str] = None
+    duration_ms: Optional[float] = None
+    llm_duration_ms: Optional[float] = None
 
 
 class AgentResult(BaseModel):
@@ -26,3 +28,4 @@ class AgentResult(BaseModel):
     success: bool
     po: Optional[RawPurchaseOrder] = None
     failure_reason: Optional[str] = None
+    total_duration_ms: Optional[float] = None

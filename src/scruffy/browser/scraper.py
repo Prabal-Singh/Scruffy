@@ -4,7 +4,7 @@ from pathlib import Path
 
 from playwright.sync_api import Page
 
-from scruffy.browser.buyer_portal import extract_po_detail
+from scruffy.browser.buyer_portal import extract_po_detail, open_po_from_orders
 from scruffy.browser.config import BrowserConfig
 from scruffy.browser.runner import BrowserRunner
 from scruffy.models.po import RawPurchaseOrder
@@ -45,7 +45,6 @@ def scrape_buyer_po(
     )
     with runner.session() as (_pw, _browser, _context, page):
         login_to_buyer_portal(page, portal_url, email, password)
-        page.locator(f"[data-testid='po-link-{po_number}']").click()
-        page.wait_for_url(f"**/orders/{po_number}")
+        open_po_from_orders(page, po_number)
         runner.screenshot(page, f"po_{po_number.replace('-', '_').lower()}")
         return extract_po_detail(page)

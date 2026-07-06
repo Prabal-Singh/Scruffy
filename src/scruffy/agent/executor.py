@@ -1,7 +1,10 @@
 from __future__ import annotations
 
+from typing import Optional
+
 from playwright.sync_api import Locator, Page
 
+from scruffy.agent.loop_guard import po_from_test_id
 from scruffy.browser.buyer_portal import extract_po_detail
 from scruffy.llm.actions import BrowserAction
 from scruffy.models.observation import PageObservation
@@ -9,6 +12,10 @@ from scruffy.models.po import RawPurchaseOrder
 
 
 class ActionExecutionError(RuntimeError):
+    pass
+
+
+class WrongPoClickError(ActionExecutionError):
     pass
 
 
@@ -42,15 +49,35 @@ def resolve_locator(page: Page, observation: PageObservation, target_id: str) ->
     )
 
 
-def execute_action(page: Page, observation: PageObservation, action: BrowserAction) -> str:
+def execute_action(
+    page: Page,
+    observation: PageObservation,
+    action: BrowserAction,
+    *,
+    target_order_id: Optional[str] = None,
+) -> str:
     """Execute one constrained browser action. Returns a short status message."""
     if action.action == "click":
         if not action.target_id:
             raise ActionExecutionError("click requires target_id")
+        element = observation.element_by_id(action.target_id)
+        if element is None:
+            raise ActionExecutionError(f"Unknown target_id {action.target_id!r}")
+        if element.enabled is False:
+            raise ActionExecutionError(
+                f"{action.target_id} is disabled; use orders-next when the target order is not visible"
+            )
+        clicked_order_id = po_from_test_id(element.test_id)
+        if target_order_id and clicked_order_id and clicked_order_id != target_order_id:
+            raise WrongPoClickError(
+                f"Target order is {target_order_id!r}, not {clicked_order_id!r}. "
+                "Use orders-next if the target is not in visible_po_numbers."
+            )
         locator = resolve_locator(page, observation, action.target_id)
         locator.click()
         page.wait_for_load_state("domcontentloaded")
-        return f"Clicked {action.target_id}"
+        suffix = f" ({element.test_id})" if element.test_id else ""
+        return f"Clicked {action.target_id}{suffix}"
 
     if action.action == "type":
         if not action.target_id or action.text is None:
