@@ -73,7 +73,32 @@ def browser_runner(tmp_path: Path):
 
 
 @pytest.fixture
+def buyer_portal_v2_url() -> str:
+    port = _free_port()
+    base = f"http://127.0.0.1:{port}"
+    proc = subprocess.Popen(
+        [sys.executable, str(ROOT / "portals" / "v2" / "server.py"), "--port", str(port)],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+        cwd=str(ROOT),
+    )
+    try:
+        _wait_for_server(f"{base}/login")
+        yield base
+    finally:
+        proc.terminate()
+        proc.wait(timeout=5)
+
+
+@pytest.fixture
 def expected_po_1042() -> dict:
     fixture_path = ROOT / "tests" / "fixtures" / "expected_po_1042.json"
+    with fixture_path.open(encoding="utf-8") as f:
+        return json.load(f)
+
+
+@pytest.fixture
+def expected_po_1042_v2() -> dict:
+    fixture_path = ROOT / "tests" / "fixtures" / "expected_po_1042_v2.json"
     with fixture_path.open(encoding="utf-8") as f:
         return json.load(f)

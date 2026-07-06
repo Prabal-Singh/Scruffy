@@ -216,7 +216,8 @@ Do not start by scraping real buyer portals. Use a layered approach:
 scruffy/
 ├── assets/              # Logo, screenshots
 ├── docs/                # Research notes (portal-research.md)
-├── portals/v1/          # Fake Coupa-style buyer portal
+├── portals/v1/          # Fake Coupa-style buyer portal (clean headers)
+├── portals/v2/          # Messy column headers + UOM variants
 ├── scripts/             # Runnable demos
 ├── src/scruffy/
 │   ├── agent/           # ReAct loop, action executor
@@ -237,11 +238,13 @@ pip install -e ".[dev,portal]"
 # Install Playwright browsers
 playwright install chromium
 
-# Start fake buyer portal (terminal 1)
+# Start fake buyer portal (terminal 1) — v1 on :8000, v2 on :8001
 python portals/v1/server.py
+python portals/v2/server.py
 
 # Scrape a PO (terminal 2)
 python scripts/scrape_buyer_portal.py --headed
+python scripts/scrape_buyer_portal.py --url http://127.0.0.1:8001 --headed
 
 # Dump page observation JSON (portal must be running)
 python scripts/dump_observation.py --page orders
