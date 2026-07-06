@@ -137,8 +137,8 @@ Do not start by scraping real buyer portals. Use a layered approach:
 - [x] Playwright on public practice site (login, table scrape, screenshot, trace)
 - [x] Pydantic models for `RawPurchaseOrder`
 - [ ] Browser observation format (compact DOM → element map)
-- [ ] Fake buyer portal v1 (`portals/`)
-- [ ] Golden JSON tests against fixtures
+- [x] Fake buyer portal v1 (`portals/v1`)
+- [x] Golden JSON tests against fixtures
 
 **Milestone:** Given portal URL + credentials, log in, navigate to orders, extract PO data, save structured trace.
 
@@ -199,10 +199,11 @@ Do not start by scraping real buyer portals. Use a layered approach:
 ```
 scruffy/
 ├── assets/              # Logo, screenshots
-├── portals/             # Fake buyer portals for testing
+├── docs/                # Research notes (portal-research.md)
+├── portals/v1/          # Fake Coupa-style buyer portal
 ├── scripts/             # Runnable demos
 ├── src/scruffy/
-│   ├── browser/         # Playwright runner, extractors, observation
+│   ├── browser/         # Playwright runner, extractors, scraper
 │   └── models/          # Pydantic schemas (RawPO, CanonicalPO)
 └── tests/               # pytest + playwright tests
 ```
@@ -213,16 +214,22 @@ scruffy/
 
 ```bash
 # Install dependencies
-uv sync   # or: pip install -e ".[dev]"
+pip install -e ".[dev,portal]"
 
 # Install Playwright browsers
 playwright install chromium
 
-# Run Phase 1 practice scraper
+# Start fake buyer portal (terminal 1)
+python portals/v1/server.py
+
+# Scrape a PO (terminal 2)
+python scripts/scrape_buyer_portal.py --headed
+
+# Run practice site scraper
 python scripts/scrape_practice_site.py
 
 # Run tests
-pytest
+pytest -m browser
 ```
 
 ---

@@ -1,29 +1,12 @@
-import sys
+import pytest
 from pathlib import Path
 
-import pytest
-
-# Allow running tests without install
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
-
-from scruffy.browser.config import BrowserConfig
 from scruffy.browser.extractors import extract_inventory_items
 from scruffy.browser.runner import BrowserRunner
 
 PRACTICE_URL = "https://www.saucedemo.com/"
 PRACTICE_USER = "standard_user"
 PRACTICE_PASS = "secret_sauce"
-
-
-@pytest.fixture
-def browser_runner(tmp_path: Path) -> BrowserRunner:
-    return BrowserRunner(
-        BrowserConfig(
-            headless=True,
-            screenshot_dir=tmp_path / "screenshots",
-            trace_dir=tmp_path / "traces",
-        )
-    )
 
 
 @pytest.mark.browser
