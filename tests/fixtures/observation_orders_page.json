@@ -1,0 +1,20 @@
+{
+  "url": "http://127.0.0.1:8000/orders",
+  "title": "Purchase Orders — Midwest Foods Vendor Portal",
+  "visible_text": "Midwest Foods Vendor Portal vendor@scruffy.test Orders Invoices Account Purchase Orders PO NUMBER ORDER DATE STATUS ITEMS TOTAL PO-1042 2026-07-01 Open 3 $480.36 PO-1041 2026-06-28 Closed 1 $150.00 PO-1039 2026-06-20 Acknowledged 1 $89.70",
+  "interactive_elements": [
+    { "id": "e1", "role": "link", "text": "Orders", "test_id": "nav-orders", "name": null, "input_type": null },
+    { "id": "e2", "role": "link", "text": "Invoices", "test_id": "nav-invoices", "name": null, "input_type": null },
+    { "id": "e3", "role": "link", "text": "Account", "test_id": "nav-account", "name": null, "input_type": null },
+    { "id": "e4", "role": "link", "text": "PO-1042", "test_id": "po-link-PO-1042", "name": null, "input_type": null },
+    { "id": "e5", "role": "link", "text": "PO-1041", "test_id": "po-link-PO-1041", "name": null, "input_type": null },
+    { "id": "e6", "role": "link", "text": "PO-1039", "test_id": "po-link-PO-1039", "name": null, "input_type": null }
+  ],
+  "tables": [
+    {
+      "id": "orders-table",
+      "headers": ["PO NUMBER", "ORDER DATE", "STATUS", "ITEMS", "TOTAL"],
+      "row_count": 3
+    }
+  ]
+}

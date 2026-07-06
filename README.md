@@ -140,7 +140,7 @@ Do not start by scraping real buyer portals. Use a layered approach:
 - [x] Fake buyer portal v1 (`portals/v1`)
 - [x] Golden JSON tests against fixtures
 
-### Phase 1.5 — Observation Layer (current)
+### Phase 1.5 — Observation Layer ✓
 
 **Goal:** Compress pages into typed snapshots for future agent loops.
 
@@ -148,6 +148,14 @@ Do not start by scraping real buyer portals. Use a layered approach:
 - [x] `capture_page_observation()` via Playwright
 - [x] `scripts/dump_observation.py` CLI
 - [x] Tests against fake buyer portal pages
+
+### Phase 1.75 — LLM connectivity (current)
+
+**Goal:** Verify Mac → Linux Ollama path before Phase 2 agent loop.
+
+- [x] `OllamaClient` + `BrowserAction` schema
+- [x] `scripts/test_ollama.py` smoke + structured JSON test
+- [ ] Phase 2 constrained action loop wired to Playwright
 
 ### Phase 2 — Constrained Browser Agent
 
@@ -235,6 +243,10 @@ python scripts/scrape_buyer_portal.py --headed
 # Dump page observation JSON (portal must be running)
 python scripts/dump_observation.py --page orders
 python scripts/dump_observation.py --page po --po PO-1042 --headed
+
+# Test Linux Ollama box (Qwen)
+python scripts/test_ollama.py
+# or: SCRUFFY_OLLAMA_URL=http://192.168.0.7:11434 python scripts/test_ollama.py
 
 # Run practice site scraper
 python scripts/scrape_practice_site.py
