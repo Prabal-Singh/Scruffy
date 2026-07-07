@@ -1,8 +1,10 @@
 # Scruffy — Project Handoff (July 2026)
 
-This document records where the project stopped, why it was shelved, the competitive landscape, and how to pick it back up — including notes on a potential YC path.
+This document records where the project stands, the competitive landscape, why building paused, and how to pick it back up — including notes on a potential YC path.
 
-**Status:** Shelved (not abandoned). Code is on `main`, pushed to GitHub. The prototype works end-to-end on fake portals; real customer validation in Phoenix was not completed in-repo.
+**Status (updated 2026-07-07):** Build frozen; **60-day demand-validation gate in progress.** After an external review (gstack, see below), the decision changed from "shelve" to "stop building, run paid shadow pilots in Phoenix." Code is on `main`, pushed to GitHub. The prototype works end-to-end on fake portals.
+
+**Decision gate:** By ~2026-09-05, either 2 of the keep-going criteria below are met (→ resume build against a paying design partner's stack) or 15+ conversations produced zero portal credentials and zero budget discussion (→ shelve for real).
 
 ---
 
@@ -68,7 +70,76 @@ pytest -v
 
 ---
 
-## Why We Shelved
+## External Review Verdict (gstack, 2026-07-07)
+
+We asked for an outside diagnostic on continue-vs-shelve. Full transcript lives outside this repo; the operative conclusions:
+
+**Verdict: don't shelve yet — stop building.** SKU normalization and ERP injection are frozen until a paid pilot exists. The riskiest assumption is not "the market is crowded"; it is *"Phoenix suppliers will pay to fix portal re-keying."* Friction signals exist; buy signals don't. The next 4–8 weeks are sales, not code.
+
+### The offer (not LOIs — LOIs are validation theater)
+
+| Offer | Price | Customer gives |
+|-------|-------|----------------|
+| Paid shadow pilot (preferred) | $2–5K / 30 days | Portal logins for 1–3 buyers, ERP export format, 30 min/week review |
+| Paid proof-of-value | $500–1K one-time | One portal, one week of POs → we deliver ERP-ready CSV |
+
+Pitch: *"We'll ingest every PO from [Buyer X portal] and deliver ERP-ready orders within 4 hours. You approve before post. Miss a PO → full refund."*
+
+### Keep-going criteria (need 2 within 60 days)
+
+1. ≥1 paid pilot at $2K+/month (or $5K one-time)
+2. Real portal credentials within 2 weeks of asking
+3. Customer quantifies pain in hours/week or $/order (not "it's annoying")
+4. Pull: customer asks to add a second portal unprompted
+5. Unprompted referral to another supplier
+
+**Shelve trigger:** 15+ conversations, zero portal creds, zero budget discussion after directly asking *"If we did this for 30 days, is there $3K in the budget?"*
+
+### The wedge (sharpened)
+
+Not "we automate browsers" (commodity — Skyvern, UiPath). Not email/PDF ingestion (lost — Canals, OrderPier, Modusbridge). The wedge:
+
+> **For mid-market distributors whose buyers force them onto custom portals (not EDI, not Coupa API), we turn portal POs into ERP-ready orders with buyer-SKU → your-SKU mapping.**
+
+Browser automation is plumbing; the **per-buyer SKU crosswalk** is the moat. Vertical ICP (e.g. SAP B1 distributors in Phoenix foodservice/industrial) is the GTM filter, not a product pivot. If discovery shows portals are <20% of order volume for the ICP, pivot the wedge, not the tech.
+
+### This week's assignment
+
+Three Phoenix conversations. In each, obtain:
+
+1. Top 3 buyer portals by order volume (named)
+2. Hours/week spent on portal re-key
+3. Live screen-share of one portal login workflow
+
+Offer: *"Give us read-only access to one buyer portal. We'll deliver last week's POs ERP-ready in 48 hours. $500 credit toward a pilot if we miss one."*
+
+No portal access after 3 tries → wrong ICP or wrong wedge; adjust before writing more code.
+
+### Discovery questions (verbatim)
+
+- "Walk me through yesterday. How many portal logins? How long each?"
+- "What % of orders arrive via buyer portal vs email, phone, EDI?"
+- "Which 3 buyers force portal usage? Rank by order volume."
+- "What does a mis-keyed order cost you? Last time it happened?"
+- "If your best portal person quit tomorrow, what breaks?"
+- "What are you spending today to solve this? FTE, overtime, errors?"
+- "If this worked tomorrow, who signs the check? What budget line?"
+- "Have you tried Canals / Conexiom / a VA? Why didn't it stick?"
+- "Did your buyer offer EDI or API? Why didn't you take it?"
+- **Kill shot:** "If we ran your top portal for 30 days and delivered every PO ERP-ready, would you pay $3,000? Who approves that?"
+
+### YC implications
+
+- Crowded market ≠ dead application; weak insight + no pull = dead application.
+- 1–3 design partners **paying $2K+/mo with portal access** is a real story; unpaid design partners are table stakes.
+- Expected partner questions and our answers:
+  - *"Why won't Canals add portal scraping?"* — buyer-side auth, portal fragmentation, per-buyer SKU crosswalk; not their ICP (they own email intake).
+  - *"Why won't Skyvern win?"* — horizontal RPA; we're a vertical order desk with ERP + SKU intelligence.
+  - *"Show me a customer who panicked when you turned it off."* — this is what the pilot must produce.
+
+---
+
+## Why We Originally Considered Shelving
 
 The problem is **real**. The prototype **works**. We shelved because the **go-to-market path as a generalist indie product** looks crowded and capital-intensive, not because the technical idea failed.
 
@@ -244,10 +315,12 @@ scruffy/
 
 | Date | Decision | Rationale |
 |------|----------|-----------|
-| 2026-07 | Shelve active development | Crowded market; GTM/integration bar too high for solo build-without-customers |
-| 2026-07 | Keep repo + docs | Prototype works; reusable for resume, YC, or customer pilots |
-| 2026-07 | Push to `main` | Preserve eval baseline and portal v1–v3 |
+| 2026-07-06 | Considered shelving | Crowded market; GTM/integration bar too high for solo build-without-customers |
+| 2026-07-06 | Keep repo + docs | Prototype works; reusable for resume, YC, or customer pilots |
+| 2026-07-06 | Push to `main` | Preserve eval baseline and portal v1–v3 |
+| 2026-07-07 | **Reverse shelve → 60-day validation gate** | External review (gstack): friction ≠ budget; test willingness to pay before killing or building. Freeze code; run paid shadow pilots in Phoenix |
+| 2026-07-07 | Drop LOIs in favor of paid pilots | LOIs cost the customer nothing and prove nothing about budget |
 
 ---
 
-*Last updated: July 2026. Revisit when resuming customer conversations in Phoenix or applying to YC.*
+*Last updated: 2026-07-07. Next review: end of the 60-day gate (~2026-09-05), or earlier if a pilot lands.*

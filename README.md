@@ -333,4 +333,4 @@ While building, continue validating with suppliers:
 
 The prototype exists to **learn agentic concepts** and **demo the extraction problem** — not as a finalized product roadmap.
 
-> **Project shelved (July 2026).** See [docs/project-handoff.md](docs/project-handoff.md) for status, competitive landscape, why we stopped, and how to resume (including YC notes).
+> **Build frozen — 60-day demand-validation gate (July 2026).** No new code until a paid shadow pilot lands in Phoenix. See [docs/project-handoff.md](docs/project-handoff.md) for status, competitive landscape, the external review verdict, and keep/shelve criteria.
