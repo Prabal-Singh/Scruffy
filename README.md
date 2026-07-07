@@ -215,7 +215,7 @@ Do not start by scraping real buyer portals. Use a layered approach:
 ```
 scruffy/
 ├── assets/              # Logo, screenshots
-├── docs/                # Research notes (portal-research.md)
+├── docs/                # Research notes (portal-research.md, project-handoff.md)
 ├── eval/                # Agent eval case registry (cases.json)
 ├── portals/v1/          # Fake Coupa-style buyer portal (clean headers)
 ├── portals/v2/          # Messy column headers + UOM variants
@@ -332,3 +332,5 @@ While building, continue validating with suppliers:
 - What does a failed order ingestion cost them?
 
 The prototype exists to **learn agentic concepts** and **demo the extraction problem** — not as a finalized product roadmap.
+
+> **Project shelved (July 2026).** See [docs/project-handoff.md](docs/project-handoff.md) for status, competitive landscape, why we stopped, and how to resume (including YC notes).
