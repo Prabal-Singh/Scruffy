@@ -325,7 +325,8 @@ The agent trace prints each step (URL, action, reason, outcome) so you can judge
 Scruffy plugs into [FixtureBench](https://github.com/Prabal-Singh/fixturebench) — the shared procurement-portal eval suite — via `scruffy.fixturebench_agent`.
 
 ```bash
-pip install -e ".[portal,dev,fixturebench]"
+pip install -e ".[portal,dev]"
+pip install "fixturebench[envs,playwright] @ git+https://github.com/Prabal-Singh/fixturebench.git"
 playwright install chromium
 
 # Deterministic Scruffy agent (CI) — published score: 4/4 smoke
