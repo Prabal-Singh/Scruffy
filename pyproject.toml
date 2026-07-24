@@ -20,6 +20,9 @@ dev = [
     "pytest>=8.0.0",
     "pytest-playwright>=0.6.0",
 ]
+fixturebench = [
+    "fixturebench[envs,playwright] @ git+https://github.com/Prabal-Singh/fixturebench.git",
+]
 
 [build-system]
 requires = ["hatchling"]

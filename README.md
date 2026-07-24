@@ -320,6 +320,27 @@ python scripts/run_eval.py --tag smoke
 
 The agent trace prints each step (URL, action, reason, outcome) so you can judge whether Qwen is good enough before scaling evals across more portal variants.
 
+### FixtureBench dogfood (external suite)
+
+Scruffy plugs into [FixtureBench](https://github.com/Prabal-Singh/fixturebench) — the shared procurement-portal eval suite — via `scruffy.fixturebench_agent`.
+
+```bash
+pip install -e ".[portal,dev,fixturebench]"
+playwright install chromium
+
+# Deterministic Scruffy agent (CI) — published score: 4/4 smoke
+PYTHONPATH=src:. fixturebench run \
+  --agent scruffy.fixturebench_agent:ScruffyDeterministicAgent \
+  --tag smoke
+
+# Agentic Scruffy (needs Ollama)
+PYTHONPATH=src:. fixturebench run \
+  --agent scruffy.fixturebench_agent:ScruffyAgenticAdapter \
+  --tag hard
+```
+
+GitHub Actions runs the smoke dogfood job on every push. Scores live in FixtureBench [`docs/scores.md`](https://github.com/Prabal-Singh/fixturebench/blob/main/docs/scores.md).
+
 ---
 
 ## Customer Discovery (Parallel Track)
